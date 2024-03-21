@@ -56,4 +56,16 @@ action_endpoint:
 #  queue: queue
 #
 nlg:
-  type: rasa_plus.ml.ContextualResponseRephraser
+  type: rephrase
+
+tracing:
+  type: otlp
+  endpoint: otlp-collector:4317
+  insecure: true
+  service_name: rasa
+
+metrics:
+  type: otlp
+  endpoint: otlp-collector:4317
+  insecure: true
+  service_name: rasa
