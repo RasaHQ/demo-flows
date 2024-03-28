@@ -1,0 +1,19 @@
+version: "3.1"
+
+slots:
+  requested_account:
+    type: text
+    mappings:
+      - type: custom
+  statement_date:
+    type: text
+    mappings:
+      - type: custom
+  
+responses:
+  utter_ask_requested_account:
+    - text: "For which account would you like to request a statement?"
+  utter_ask_statement_date:
+    - text: "For which date would you like to request the statement?"
+  utter_statement_requested:
+    - text: "I have requested the statement for account {requested_account} for the date {statement_date}."

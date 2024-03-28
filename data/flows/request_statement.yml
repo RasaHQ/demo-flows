@@ -1,0 +1,11 @@
+flows:
+  request_statement:
+    description: The user needs to request a statement for a bank account.
+    name: request_statement
+    steps:
+      - collect: requested_account
+      - call: update_account_email_address
+      - collect: statement_date
+        ask_before_filling: true
+      - action: utter_statement_requested
+        next: END

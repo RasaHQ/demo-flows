@@ -1,0 +1,9 @@
+flows:
+  update_account_email_address:
+    description: The user needs to update their email address for thier account.
+    name: update account email address
+    if: False
+    steps:
+      - collect: account_email_address
+      - action: utter_email_address_updated
+        next: END
