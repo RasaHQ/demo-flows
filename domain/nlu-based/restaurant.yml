@@ -6,6 +6,7 @@ intents:
   - inform
   - list_restaurants
   - goodbye
+  - special_requests_intent
 
 entities:
 - cuisine
@@ -63,6 +64,7 @@ forms:
     - goodbye
     required_slots:
         - city
+        - special_requests
         - cuisine
         - restaurant_name
         - num_people

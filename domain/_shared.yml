@@ -12,6 +12,16 @@ slots:
     type: bool
     mappings:
       - type: from_llm
+  special_requests:
+    type: text
+    shared_for_coexistence: true
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: restaurant_form
+            requested_slot: special_requests
+          - active_flow: add_contact
+
 
 responses:
   utter_goodbye:
@@ -61,6 +71,8 @@ responses:
     - text: I can't wait to see how this unfolds.
   utter_conversation_highlight:
     - text: Our conversation was a highlight of my virtual day!
+  utter_ask_special_requests:
+    - text: Do you have any special requests?
 
 session_config:
   session_expiration_time: 60

@@ -11,6 +11,8 @@ flows:
         description: a user handle starting with @
       - collect: add_contact_name
         description: a name of a person
+      - collect: special_requests
+        ask_before_filling: true
       - collect: add_contact_confirmation
         ask_before_filling: true
         next:

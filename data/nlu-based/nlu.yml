@@ -215,3 +215,18 @@ nlu:
     - The city I'm residing in is Dubai.
     - Rio de Janeiro
     - Toronto
+
+- intent: special_requests_intent
+  examples: |
+    - I am allergic to nuts
+    - Please ensure a vegetarian option is available
+    - I prefer a table away from the kitchen
+    - Can I have a high chair for a toddler?
+    - We need wheelchair access
+    - I would like a window seat, if possible
+    - Can you provide a gluten-free menu?
+    - We have someone with lactose intolerance in our group
+    - I don't like fish
+    - I need a quiet table
+    - I'm on a low-carb diet
+    
