@@ -20,7 +20,6 @@ slots:
         conditions:
           - active_loop: restaurant_form
             requested_slot: special_requests
-          - active_flow: add_contact
 
 
 responses:
