@@ -1,0 +1,165 @@
+name: cml
+on:
+  issue_comment:
+    types: [created, edited, deleted]
+
+env:
+  DEFAULT_PYTHON_VERSION: '3.9'
+  POETRY_VERSION: 1.8.2
+
+jobs:
+  train:
+    if: ${{ github.event.issue.pull_request }}    # <--- The other way to compare if it's on a PR or on an issue
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Checkout git repository 🕝
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        with:
+          ref: test-azure-openai
+
+      - name: Setup Python
+        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+
+      - name: Install poetry 🦄
+        uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Load Poetry Cached Libraries ⬇
+        id: cache-poetry
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ env.POETRY_VERSION }}-${{ env.DEFAULT_PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: ${{ runner.os }}-poetry-${{ env.DEFAULT_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        run: python -m venv create .venv
+
+      - name: Set up virtual environment
+        run: poetry config virtualenvs.in-project true
+
+      # Authenticate with gcloud for release registry (where Rasa is published)
+      - id: "auth-release"
+        name: Authenticate with gcloud for release registry 🎫
+        uses: "google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d"
+        with:
+          token_format: 'access_token'
+          credentials_json: "${{ secrets.RASA_RELEASES_READ }}"
+
+      - name: Configure OAuth token for poetry
+        run: |
+          poetry config http-basic.rasa-plus oauth2accesstoken $(gcloud auth print-access-token)
+
+      - name: Install Dependencies 📦
+        run: |
+          make install
+
+      - name: Train model
+        env:
+          OPENAI_API_KEY: ${{secrets.AZURE_OPENAI_API_KEY}}
+          RASA_PRO_LICENSE: ${{secrets.RASA_PRO_LICENSE}}
+          RASA_PRO_BETA_INTENTLESS: true
+          RASA_DUCKLING_HTTP_URL: ${{secrets.DUCKLING_URL}}
+        run: |
+          make train
+
+      - name: Persist model
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          name: trained-model
+          path: models/${{steps.upload_model.outputs.model}}.tar.gz
+
+  run_e2e_tests:
+    name: Run e2e Tests
+    if: ${{ github.event.issue.pull_request }}    # <--- The other way to compare if it's on a PR or on an issue
+    runs-on: [ ubuntu-latest ]
+    needs: [ train ]
+
+    steps:
+      - uses: iterative/setup-cml@v1
+      - name: Checkout git repository 🕝
+        uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c
+        with:
+          ref: test-azure-openai
+
+      - name: Setup Python
+        uses: actions/setup-python@57ded4d7d5e986d7296eab16560982c6dd7c923b
+        with:
+          python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
+
+      - name: Install poetry 🦄
+        uses: Gr1N/setup-poetry@15821dc8a61bc630db542ae4baf6a7c19a994844
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+
+      - name: Load Poetry Cached Libraries ⬇
+        id: cache-poetry
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: .venv
+          key: ${{ runner.os }}-poetry-${{ env.POETRY_VERSION }}-${{ env.DEFAULT_PYTHON_VERSION }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: ${{ runner.os }}-poetry-${{ env.DEFAULT_PYTHON_VERSION }}
+
+      - name: Create virtual environment
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
+        run: python -m venv create .venv
+
+      - name: Set up virtual environment
+        run: poetry config virtualenvs.in-project true
+
+        # Authenticate with gcloud for release registry (where Rasa is published)
+      - id: "auth-release"
+        name: Authenticate with gcloud for release registry 🎫
+        uses: "google-github-actions/auth@ef5d53e30bbcd8d0836f4288f5e50ff3e086997d"
+        with:
+          token_format: 'access_token'
+          credentials_json: "${{ secrets.RASA_RELEASES_READ }}"
+
+      - name: Configure OAuth token for poetry
+        run: |
+          poetry config http-basic.rasa-plus oauth2accesstoken $(gcloud auth print-access-token)
+
+      - name: Install Dependencies 📦
+        run: |
+          make install
+
+      - uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        with:
+          name: trained-model
+          path: models/
+
+      - name: Init LLM Cache
+        id: cache-llm
+        uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
+        with:
+          path: .rasa
+          key: rasa-llm-cache
+
+      - name: Run action server
+        env:
+          OPENAI_API_KEY: ${{secrets.AZURE_OPENAI_API_KEY}}
+          RASA_PRO_LICENSE: ${{secrets.RASA_PRO_LICENSE}}
+          RASA_DUCKLING_HTTP_URL: ${{secrets.DUCKLING_URL}}
+          RASA_PRO_BETA_INTENTLESS: true
+        run: |
+          make actions &
+
+      - name: Run e2e happy_path tests
+        env:
+          OPENAI_API_KEY: ${{secrets.AZURE_OPENAI_API_KEY}}
+          RASA_PRO_LICENSE: ${{secrets.RASA_PRO_LICENSE}}
+          RASA_DUCKLING_HTTP_URL: ${{secrets.DUCKLING_URL}}
+          RASA_PRO_BETA_INTENTLESS: true
+        run: |
+          poetry run rasa test e2e e2e_tests/passing/happy_path >> report.md
+
+      - name: Create CML report
+        env:
+          REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Post CML report as a comment in GitHub
+          cml comment create report.md
