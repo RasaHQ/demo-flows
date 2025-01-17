@@ -37,7 +37,7 @@ class ValidateRestaurantForm(FormValidationAction):
         tracker: Tracker,
         domain: DomainDict,
     ) -> Dict[Text, Any]:
-        """Validate cuisine value."""
+        """Validate restaurant name."""
         restaurants = get_restaurants(tracker.sender_id)
         restaurant_names = set([
             r.name.lower()
