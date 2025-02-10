@@ -6,11 +6,7 @@ intents:
   - inform_pizza_type
   - inform_address
   - inform_num_pizza
-  - correct_order
-  - correct_num_pizza
   - correct_pizza_type
-  - correct_address
-  - correct_payment_option
   - affirm
   - deny
 
@@ -24,6 +20,7 @@ slots:
     mappings:
         - type: from_entity
           entity: pizza_type
+        - type: from_llm
   num_pizza:
     type: float
     mappings:
@@ -32,12 +29,11 @@ slots:
           intent: inform_num_pizza
           conditions:
             - active_flow: fill_pizza_order
-        - type: from_entity
-          entity: number
-          intent: correct_num_pizza
+        - type: from_llm
+          allow_nlu_correction: true
           conditions:
-          - active_flow: fill_pizza_order
-          - active_flow: order_pizza
+            - active_flow: fill_pizza_order
+            - active_flow: order_pizza
   address:
     type: text
     mappings:
@@ -45,6 +41,8 @@ slots:
         intent: inform_address
         conditions:
           - active_flow: fill_pizza_order
+      - type: from_llm
+        allow_nlu_correction: true
   confirmation_order:
     type: bool
     mappings:

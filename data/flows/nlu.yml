@@ -165,28 +165,6 @@ nlu:
       - [3](number) pizzas
       - [4](number) pizzas
 
-  - intent: correct_order
-    examples: |
-      - I actually need to update my order.
-      - I made a mistake in my order.
-      - I need to change my order.
-      - I made a mistake in the delivery address.
-      - I need to update the delivery address.
-      - I made a mistake in the payment option.
-
-  - intent: correct_num_pizza
-    examples: |
-        - I actually want to order [2](number) pizzas.
-        - Need [10](number) pizzas now instead.
-        - I actually want to order [3](number) pizzas.
-        - I actually want to order [4](number) pizzas.
-        - I actually want to order [5](number) pizzas.
-        - I actually want to order [6](number) pizzas.
-        - I actually want to order [7](number) pizzas.
-        - I actually want to order [8](number) pizzas.
-        - I actually want to order [9](number) pizzas.
-        - I actually want to order [10](number) pizzas.
-
   - intent: correct_pizza_type
     examples: |
         - I actually want to order a [margherita](pizza_type) pizza.
@@ -201,19 +179,6 @@ nlu:
         - Actually, can i get a [hawaiian](pizza_type) instead.
         - Actually, can i get a [diavola](pizza_type) instead.
         - Actually, can i get a [quattro formaggi](pizza_type) instead.
-
-  - intent: correct_address
-    examples: |
-      - I actually want to change the delivery address to 13 Pine Road.
-      - actually can i get the pizza delivered to 13 Pine Road.
-      - I made a mistake and need to update my delivery address first to 43 Elm Street.
-      - Send the pizza to 25 Maple Avenue instead.
-      - I need to update the delivery address to 59 Oak Drive.
-
-  - intent: correct_payment_option
-    examples: |
-      - Can I pay with credit card instead?
-      - I actually want to pay with membership points.
 
   - intent: affirm
     examples: |

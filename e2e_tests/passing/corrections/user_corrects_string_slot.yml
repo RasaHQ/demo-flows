@@ -1,18 +1,17 @@
 test_cases:
   - test_case: user corrects string slot
     steps:
-      # NLUCommandAdapter should start the flow, so "Peter" is not detected as an entity
+      # NLUCommandAdapter should start the flow, and the SingleStepLLMCommandGenerator should
+      # set detect the value for the slot "add_contact_name"
       - user: I want to add Peter to my contacts
       - slot_was_set:
         - route_session_to_calm: True
+      - slot_was_set:
+        - add_contact_name: "Peter"
       - utter: utter_ask_add_contact_handle
       - user: It's @PeterPark
       - slot_was_set:
           - add_contact_handle: "@PeterPark"
-      - utter: utter_ask_add_contact_name
-      - user: Peter
-      - slot_was_set:
-          - add_contact_name: "Peter"
       - utter: utter_ask_add_contact_confirmation
       - user: Ah, please use Spidey as the name
       - utter: utter_ask_confirm_slot_correction

@@ -1,3 +1,6 @@
+metadata:
+  - duplicate_confirmation:
+      turn_idx: 2
 test_cases:
   - test_case: user_orders_pizza_stating_which_type_and_corrects_quantity_later
     steps:
@@ -120,14 +123,10 @@ test_cases:
                 utter_name: utter_ask_payment_option
       - user: wait, i meant to say the pizza should be delivered to 13 Pine Road.
         assertions:
+            - flow_started: pattern_correction
             - bot_uttered:
-                text_matches: "I'm sorry about that. Let's correct your address. Please confirm your new address?"
-            - slot_was_set:
-                - name: address
-                  value: null
-            - bot_uttered:
-                utter_name: utter_ask_address
-      - user: 13 Pine Road
+                utter_name: utter_ask_confirm_slot_correction
+      - user: /SetSlots(confirm_slot_correction=true)
         assertions:
             - slot_was_set:
                 - name: address
@@ -135,6 +134,7 @@ test_cases:
             - bot_uttered:
                 utter_name: utter_confirm
       - user: /SetSlots(confirmation_order=True)
+        metadata: duplicate_confirmation
         assertions:
             - bot_uttered:
                 utter_name: utter_ask_payment_option
@@ -189,7 +189,7 @@ test_cases:
             - bot_uttered:
                 utter_name: utter_ask_card_details
 
-  - test_case: user_orders_pizza_stating_which_type_and_corrects_order_details_later
+  - test_case: user_orders_pizza_stating_which_type_and_corrects_generically_later
     steps:
       - user: I would like to order a diavola pizza.
         assertions:
@@ -218,17 +218,16 @@ test_cases:
                 utter_name: utter_ask_payment_option
       - user: actually, i made a mistake and need to update my delivery address first.
         assertions:
+            - flow_started: pattern_correction
             - bot_uttered:
-                text_matches: "I'm sorry about that. Let's correct your order. What would you like to change?"
-                buttons:
-                  - title: Pizza
-                    payload: /SetSlots(pizza=null)
-                  - title: Quantity
-                    payload: /SetSlots(num_pizza=null)
-                  - title: Address
-                    payload: /SetSlots(address=null)
-      - user: /SetSlots(address=null)
+                utter_name: utter_ask_confirm_slot_correction
+      - user: /SetSlots(confirm_slot_correction=true)
         assertions:
+            - slot_was_set:
+                - name: confirm_slot_correction
+                  value: true
+            - bot_uttered:
+                utter_name: utter_corrected_previous_input
             - bot_uttered:
                 utter_name: utter_ask_address
       - user: 3 Pine Road
@@ -239,6 +238,67 @@ test_cases:
             - bot_uttered:
                 utter_name: utter_confirm
       - user: /SetSlots(confirmation_order=True)
+        metadata: duplicate_confirmation
         assertions:
             - bot_uttered:
                 utter_name: utter_ask_payment_option
+
+  - test_case: user_orders_pizza_then_corrects_pizza_type_and_number_and_address
+    steps:
+      - user: I'd like to order some pizza.
+        assertions:
+            - bot_uttered:
+                utter_name: utter_ask_pizza
+      - user: Could I have a cappriciosa?
+        assertions:
+            - slot_was_set:
+                - name: pizza
+                  value: cappriciosa
+            - bot_uttered:
+                utter_name: utter_ask_num_pizza
+      - user: 3 please
+        assertions:
+            - slot_was_set:
+                - name: num_pizza
+                  value: 3
+            - bot_uttered:
+                utter_name: utter_ask_address
+      - user: wait can i actually just get 1 festa de carne pizza instead
+        assertions:
+            - flow_started: pattern_correction
+            - bot_uttered:
+                utter_name: utter_ask_confirm_slot_correction
+      - user: /SetSlots(confirm_slot_correction=true)
+        assertions:
+            - slot_was_set:
+                - name: pizza
+                  value: festa de carne
+            - slot_was_set:
+                - name: num_pizza
+                  value: 1
+            - bot_uttered:
+                utter_name: utter_corrected_previous_input
+            - bot_uttered:
+                utter_name: utter_ask_address
+      - user: 30 Pine Road
+        assertions:
+            - slot_was_set:
+                - name: address
+                  value: 30 Pine Road
+            - bot_uttered:
+                utter_name: utter_confirm
+      - user: oh I gave my work address, i actually want it delivered to my home at 13 Pine Road
+        assertions:
+            - flow_started: pattern_correction
+            - bot_uttered:
+                utter_name: utter_ask_confirm_slot_correction
+      - user: /SetSlots(confirm_slot_correction=true)
+        metadata: duplicate_confirmation
+        assertions:
+            - slot_was_set:
+                - name: address
+                  value: 13 Pine Road
+            - bot_uttered:
+                utter_name: utter_corrected_previous_input
+            - bot_uttered:
+                utter_name: utter_confirm

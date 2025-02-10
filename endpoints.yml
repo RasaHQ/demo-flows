@@ -57,6 +57,8 @@ action_endpoint:
 #
 nlg:
   type: rephrase
+  llm:
+    model_group: openai-direct-gpt-4o
 
 # Run OTEL collector (via `otel-docker-compose.yml`), and uncomment this section, to send traces to it.
 # tracing:
@@ -95,3 +97,7 @@ model_groups:
         timeout: 7
         temperature: 0.0
         top_p: 0.0
+  - id: openai-direct-gpt-4o
+    models:
+      - provider: openai
+        model: gpt-4o

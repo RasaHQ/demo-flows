@@ -4,10 +4,10 @@ test_cases:
       - user: Please show my contacts
       - utter: utter_list_contacts
       - utter: utter_can_do_something_else
-      # The NLUCommandAdapter predicts the StartFlow(remove_contact) so the contact handle is not yet detected
+      # The NLUCommandAdapter predicts the StartFlow(remove_contact) and the SingleStepLLMCommandGenerator should
+      # set detect the value for the slot "add_contact_name"
       - user: Remove contact @MaryLu
       # we use action_ask_remove_contact_handle for the collect step
-      - user: "@MaryLu"
       - slot_was_set:
           - remove_contact_handle: "@MaryLu"
       - utter: utter_ask_remove_contact_confirmation

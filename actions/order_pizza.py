@@ -34,24 +34,6 @@ class ActionCheckMembershipPoints(Action):
         return [SlotSet("membership_points", 150)]
 
 
-class ActionCorrectOrderDetails(Action):
-
-    def name(self) -> str:
-        return "action_ask_correct_order"
-
-    def run(self, dispatcher: CollectingDispatcher,
-            tracker: Tracker, domain: Dict[str, Any]):
-        dispatcher.utter_message(
-            text="I'm sorry about that. Let's correct your order. What would you like to change?",
-            buttons=[
-                {"title": "Pizza", "payload": "/SetSlots(pizza=null)"},
-                {"title": "Quantity", "payload": "/SetSlots(num_pizza=null)"},
-                {"title": "Address", "payload": "/SetSlots(address=null)"},
-            ]
-        )
-        return [SlotSet("confirmation_order", None), SlotSet("correct_order", True)]
-
-
 class ActionShowVacancies(Action):
 
     def name(self) -> str:
@@ -74,16 +56,3 @@ class ActionShowVacancies(Action):
                 text="We don't have any vacancies at the moment in that department. Please check back later."
             )
         return []
-
-
-class ActionCorrectAddress(Action):
-
-        def name(self) -> str:
-            return "action_correct_address"
-
-        def run(self, dispatcher: CollectingDispatcher,
-                tracker: Tracker, domain: Dict[str, Any]):
-            dispatcher.utter_message(
-                text="I'm sorry about that. Let's correct your address. Please confirm your new address?"
-            )
-            return [SlotSet("address", None)]

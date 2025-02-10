@@ -1,12 +1,16 @@
 test_cases:
   - test_case: user asks what requested information is
     steps:
-      # NLUCommandAdapter should start the flow, so "Peter" is not detected as an entity
+      # NLUCommandAdapter should start the flow, and the SingleStepLLMCommandGenerator should
+      # set "Kate" as a value for the slot "add_contact_name"
       - user: I want to add Kate to my contacts
         assertions:
             - slot_was_set:
                 - name: route_session_to_calm
                   value: True
+            - slot_was_set:
+                - name: add_contact_name
+                  value: "Kate"
             - bot_uttered:
                 utter_name: utter_ask_add_contact_handle
       - user: What's a contact handle?
@@ -20,14 +24,7 @@ test_cases:
                 - name: add_contact_handle
                   value: "@KatePurry"
             - bot_uttered:
-                utter_name: utter_ask_add_contact_name
-      - user: Kate
-        assertions:
-          - slot_was_set:
-              - name: add_contact_name
-                value: "Kate"
-          - bot_uttered:
-              utter_name: utter_ask_add_contact_confirmation
+                utter_name: utter_ask_add_contact_confirmation
       - user: "yes"
         assertions:
           - bot_uttered:

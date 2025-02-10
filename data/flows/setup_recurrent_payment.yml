@@ -13,8 +13,16 @@ flows:
       - collect: recurrent_payment_frequency
         description: the frequency of the payment
       - collect: recurrent_payment_start_date
+        # we need to set the ask_before_filling flag to true to
+        # ensure that the bot does not mishandle corrections for this
+        # slot at the next step
+        ask_before_filling: true
         description: the start date of the payment
       - collect: recurrent_payment_end_date
+        # we need to set the ask_before_filling flag to true to
+        # ensure that the bot does not eagerly fill this slot
+        # at the collect step prior to this one
+        ask_before_filling: true
         description: the end date of the payment
         rejections:
           - if: slots.recurrent_payment_end_date < slots.recurrent_payment_start_date

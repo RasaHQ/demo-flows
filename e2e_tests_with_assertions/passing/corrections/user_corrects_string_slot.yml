@@ -1,12 +1,16 @@
 test_cases:
   - test_case: user_corrects_string_slot
     steps:
-      # NLUCommandAdapter should start the flow, so "Peter" is not detected as an entity
+      # NLUCommandAdapter should start the flow, and the SingleStepLLMCommandGenerator should
+      # set "Peter" as a value for the slot "add_contact_name"
       - user: I want to add Peter to my contacts
         assertions:
           - slot_was_set:
               - name: route_session_to_calm
                 value: True
+          - slot_was_set:
+              - name: add_contact_name
+                value: "Peter"
           - bot_uttered:
               utter_name: utter_ask_add_contact_handle
       - user: It's @PeterPark
@@ -14,13 +18,6 @@ test_cases:
           - slot_was_set:
               - name: add_contact_handle
                 value: "@PeterPark"
-          - bot_uttered:
-              utter_name: utter_ask_add_contact_name
-      - user: Peter
-        assertions:
-          - slot_was_set:
-              - name: add_contact_name
-                value: "Peter"
           - bot_uttered:
               utter_name: utter_ask_add_contact_confirmation
       - user: Ah, please use Spidey as the name
